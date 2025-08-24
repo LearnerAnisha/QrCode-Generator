@@ -7,6 +7,7 @@ class QRCodeForm(forms.Form):
     widget = forms.TextInput(attrs={
       'class': 'form-control',
       'placeholder': 'Enter restaurant name'})
+
   )
   url = forms.URLField(
     max_length = 200,
