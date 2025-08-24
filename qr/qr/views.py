@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from .forms import QRCodeForm
 import qrcode
+import os
+from django.conf import settings
 
 def generate_qr_code(request):
   if request.method == 'POST':
@@ -8,10 +10,23 @@ def generate_qr_code(request):
     if form.is_valid():
       restaurant_name = form.cleaned_data['restaurant_name']
       url = form.cleaned_data['url']
+
       # Generate the QR code
       qr = qrcode.make(url)
-      file_name = restaurant_name.replace('','_') + '_menu_qr.png'
-      qr.save(file_name)
+      file_name = restaurant_name.replace(' ','_') + '_menu_qr.png'.lower()
+      file_path = os.path.join(settings.MEDIA_ROOT, file_name)
+      qr.save(file_path)
+
+      # Create image url
+      qr_url = os.path.join(settings.MEDIA_URL, file_name)
+
+      # Pass the restaurant name to the template
+      context = {
+        'restaurant_name': restaurant_name,
+        'qr_url': qr_url,
+        'file_name': file_name,
+      }
+      return render(request, 'qr_result.html', context)
   else:
     form = QRCodeForm()
     context = {
